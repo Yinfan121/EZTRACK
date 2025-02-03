@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EZTRACK</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>EZTRACK - 您的个人雷达</h1>
+        <p>此应用程序使用 GPS 定位服务来显示您当前的位置和相对于目的地的方向。</p>
+
+        <div class="info">
+            <h2>我的位置</h2>
+            <p>经度: <span id="longitude">获取中...</span></p>
+            <p>纬度: <span id="latitude">获取中...</span></p>
+        </div>
+
+        <div class="destination">
+            <h2>目的地</h2>
+            <label for="dest-longitude">经度:</label>
+            <input type="number" id="dest-longitude" placeholder="输入目的地经度">
+            <br>
+            <label for="dest-latitude">纬度:</label>
+            <input type="number" id="dest-latitude" placeholder="输入目的地纬度">
+            <button id="set-destination">设置目的地</button>
+        </div>
+
+        <div class="radar-container">
+            <canvas id="radar" width="300" height="300"></canvas>
+            <div class="center-dot"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
