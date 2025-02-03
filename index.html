@@ -13,6 +13,7 @@
             <h2>我的位置</h2>
             <p>经度: <span id="longitude">获取中...</span></p>
             <p>纬度: <span id="latitude">获取中...</span></p>
+            <p>方向: <span id="heading">获取中...</span></p>
         </div>
 
         <div class="destination">
@@ -28,6 +29,11 @@
         <div class="radar-container">
             <canvas id="radar" width="300" height="300"></canvas>
             <div class="center-dot"></div>
+            <div class="compass">
+                <div class="compass-line"></div>
+                <div class="compass-text">北</div>
+                <div class="dest-marker"></div>
+            </div>
         </div>
     </div>
 
