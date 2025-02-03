@@ -12,6 +12,9 @@ const circleInterval = 30; // 每圈间隔，对应100m
 let userLocation = { longitude: 0, latitude: 0 };
 let destinationLocation = null;
 
+let lastUpdateTime = 0;
+const updateInterval = 500; // 最小更新间隔，单位：毫秒
+
 // 绘制雷达
 function drawRadar() {
     radarCtx.clearRect(0, 0, radarCanvas.width, radarCanvas.height);
@@ -76,17 +79,27 @@ function calculateAngle(loc1, loc2) {
     return (θ + 2 * Math.PI) % (2 * Math.PI); // 角度范围 [0, 2π)
 }
 
-// 获取 GPS 位置
+// 获取 GPS 位置 (使用 watchPosition)
 function getGeolocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition, showError);
+        navigator.geolocation.watchPosition(showPosition, showError, {
+            enableHighAccuracy: true, // 启用高精度模式
+            timeout: 5000, // 设置超时时间
+            maximumAge: 0 // 不缓存位置信息
+        });
     } else {
         alert("您的浏览器不支持 GPS 定位。");
     }
 }
 
-// 显示位置信息
+// 显示位置信息 (带节流)
 function showPosition(position) {
+    const now = Date.now();
+    if (now - lastUpdateTime < updateInterval) {
+        return; // 距离上次更新时间太短，忽略此次更新
+    }
+    lastUpdateTime = now;
+
     userLocation.longitude = position.coords.longitude;
     userLocation.latitude = position.coords.latitude;
 
@@ -129,10 +142,5 @@ setDestinationButton.addEventListener('click', () => {
 });
 
 // 初始化
-// getGeolocation(); // 移除此行，因为我们将在下面的 setInterval 中调用它
-
-// 每半秒更新一次位置和雷达
-setInterval(() => {
-    getGeolocation(); // 获取当前位置
-    // drawRadar(); // 不需要再次调用，因为 showPosition 内部已经调用了 drawRadar
-}, 500);
+getGeolocation(); // 使用 watchPosition 持续监听位置变化
+setInterval(drawRadar, 500); // 保留 setInterval 以确保雷达绘制的流畅性, 特别是在位置更新不频繁的情况下
