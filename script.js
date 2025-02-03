@@ -79,7 +79,7 @@ function calculateAngle(loc1, loc2) {
 // 获取 GPS 位置
 function getGeolocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(showPosition, showError);
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
     } else {
         alert("您的浏览器不支持 GPS 定位。");
     }
@@ -129,5 +129,10 @@ setDestinationButton.addEventListener('click', () => {
 });
 
 // 初始化
-getGeolocation();
-setInterval(drawRadar, 500); // 每半秒更新一次雷达
+// getGeolocation(); // 移除此行，因为我们将在下面的 setInterval 中调用它
+
+// 每半秒更新一次位置和雷达
+setInterval(() => {
+    getGeolocation(); // 获取当前位置
+    // drawRadar(); // 不需要再次调用，因为 showPosition 内部已经调用了 drawRadar
+}, 500);
