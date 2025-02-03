@@ -1,16 +1,20 @@
 const longitudeSpan = document.getElementById('longitude');
 const latitudeSpan = document.getElementById('latitude');
+const headingSpan = document.getElementById('heading');
 const destLongitudeInput = document.getElementById('dest-longitude');
 const destLatitudeInput = document.getElementById('dest-latitude');
 const setDestinationButton = document.getElementById('set-destination');
 const radarCanvas = document.getElementById('radar');
 const radarCtx = radarCanvas.getContext('2d');
+const compassLine = document.querySelector('.compass-line');
+const destMarker = document.querySelector('.dest-marker');
 
 const radarRadius = 150; // 雷达半径
 const circleInterval = 30; // 每圈间隔，对应100m
 
 let userLocation = { longitude: 0, latitude: 0 };
 let destinationLocation = null;
+let currentHeading = 0; // 当前朝向
 
 let lastUpdateTime = 0;
 const updateInterval = 500; // 最小更新间隔，单位：毫秒
@@ -83,9 +87,9 @@ function calculateAngle(loc1, loc2) {
 function getGeolocation() {
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(showPosition, showError, {
-            enableHighAccuracy: true, // 启用高精度模式
-            timeout: 5000, // 设置超时时间
-            maximumAge: 0 // 不缓存位置信息
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
         });
     } else {
         alert("您的浏览器不支持 GPS 定位。");
@@ -96,7 +100,7 @@ function getGeolocation() {
 function showPosition(position) {
     const now = Date.now();
     if (now - lastUpdateTime < updateInterval) {
-        return; // 距离上次更新时间太短，忽略此次更新
+        return;
     }
     lastUpdateTime = now;
 
@@ -107,6 +111,7 @@ function showPosition(position) {
     latitudeSpan.textContent = userLocation.latitude.toFixed(6);
 
     drawRadar();
+    updateDestinationMarker(); // 更新目的地标记
 }
 
 // 处理错误
@@ -139,8 +144,93 @@ setDestinationButton.addEventListener('click', () => {
 
     destinationLocation = { longitude: destLongitude, latitude: destLatitude };
     drawRadar();
+    updateDestinationMarker(); // 更新目的地标记
 });
 
+// 请求设备方向权限 (针对 iOS 13+)
+function requestDeviceOrientation() {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+            .then(permissionState => {
+                if (permissionState === 'granted') {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                } else {
+                    alert('用户拒绝了设备方向权限请求。');
+                }
+            })
+            .catch(console.error);
+    } else {
+        // 对于不支持 requestPermission 的设备，直接监听事件
+        window.addEventListener('deviceorientation', handleOrientation);
+    }
+}
+
+// 处理设备方向变化
+function handleOrientation(event) {
+    let heading = event.alpha; // alpha 表示设备绕 z 轴旋转的角度，即指南针方向
+
+    // 北方修正
+    if (typeof event.webkitCompassHeading !== 'undefined') {
+        heading = -event.webkitCompassHeading; // 针对 WebKit 内核的修正
+    } else {
+        heading = 360 - heading; // 将顺时针方向转为逆时针方向
+    }
+
+    currentHeading = heading;
+    headingSpan.textContent = currentHeading.toFixed(0) + '°';
+
+    // 更新指南针
+    compassLine.style.transform = `rotate(${currentHeading}deg)`;
+
+    // 根据方向调整“北”字的位置
+    const compassText = document.querySelector('.compass-text');
+    if (currentHeading > 45 && currentHeading < 135) {
+        compassText.textContent = '东';
+        compassText.style.left = '170px';
+    } else if (currentHeading >= 135 && currentHeading <= 225) {
+        compassText.textContent = '南';
+        compassText.style.left = '95px';
+    } else if (currentHeading > 225 && currentHeading < 315) {
+        compassText.textContent = '西';
+        compassText.style.left = '20px';
+    } else {
+        compassText.textContent = '北';
+        compassText.style.left = '95px';
+    }
+
+    updateDestinationMarker(); // 更新目的地标记
+}
+
+// 更新目的地标记的位置
+function updateDestinationMarker() {
+    if (!destinationLocation) {
+        destMarker.style.display = 'none';
+        return;
+    }
+
+    // 计算目的地相对于用户的方位角 (角度)
+    let bearing = calculateAngle(userLocation, destinationLocation);
+
+    // 将方位角转换为相对于当前朝向的角度
+    let angleToDestination = bearing * 180 / Math.PI - currentHeading;
+
+    // 确保角度在 -180 到 180 度之间
+    if (angleToDestination > 180) angleToDestination -= 360;
+    if (angleToDestination < -180) angleToDestination += 360;
+
+    // 根据角度设置标记的位置
+    const markerPosition = angleToDestination;
+
+    // 如果角度在可见范围内，则显示标记，否则隐藏
+    if (Math.abs(angleToDestination) <= 90) {
+        destMarker.style.display = 'block';
+        destMarker.style.left = `calc(50% + ${markerPosition}px)`;
+    } else {
+        destMarker.style.display = 'none';
+    }
+}
+
 // 初始化
-getGeolocation(); // 使用 watchPosition 持续监听位置变化
-setInterval(drawRadar, 500); // 保留 setInterval 以确保雷达绘制的流畅性, 特别是在位置更新不频繁的情况下
+requestDeviceOrientation();
+getGeolocation();
+setInterval(drawRadar, 500);
