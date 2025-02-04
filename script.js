@@ -7,7 +7,9 @@ const setDestinationButton = document.getElementById('set-destination');
 const radarCanvas = document.getElementById('radar');
 const radarCtx = radarCanvas.getContext('2d');
 const compassLine = document.querySelector('.compass-line');
+const compassText = document.querySelector('.compass-text');
 const destMarker = document.querySelector('.dest-marker');
+const compassTicks = document.querySelector('.compass-ticks')
 
 const radarRadius = 150; // 雷达半径
 const circleInterval = 30; // 每圈间隔，对应100m
@@ -25,10 +27,11 @@ function drawRadar() {
 
     // 绘制雷达圈
     for (let i = 1; i <= 5; i++) {
-        radarCtx.beginPath();
-        radarCtx.arc(radarRadius, radarRadius, i * circleInterval, 0, 2 * Math.PI);
-        radarCtx.strokeStyle = 'green';
-        radarCtx.stroke();
+      radarCtx.beginPath();
+      radarCtx.arc(radarRadius, radarRadius, i * circleInterval, 0, 2 * Math.PI);
+      radarCtx.strokeStyle = 'rgba(0, 170, 255, 0.7)'; // 调整雷达圈颜色和透明度
+      radarCtx.lineWidth = i === 5 ? 2 : 1; // 最外圈加粗
+      radarCtx.stroke();
     }
 
     // 如果已设置目的地，绘制目的地
@@ -181,21 +184,17 @@ function handleOrientation(event) {
 
     // 更新指南针
     compassLine.style.transform = `rotate(${currentHeading}deg)`;
+    compassTicks.style.transform = `rotate(${currentHeading}deg)`;
 
     // 根据方向调整“北”字的位置
-    const compassText = document.querySelector('.compass-text');
     if (currentHeading > 45 && currentHeading < 135) {
         compassText.textContent = '东';
-        compassText.style.left = '170px';
     } else if (currentHeading >= 135 && currentHeading <= 225) {
         compassText.textContent = '南';
-        compassText.style.left = '95px';
     } else if (currentHeading > 225 && currentHeading < 315) {
         compassText.textContent = '西';
-        compassText.style.left = '20px';
     } else {
         compassText.textContent = '北';
-        compassText.style.left = '95px';
     }
 
     updateDestinationMarker(); // 更新目的地标记
@@ -230,7 +229,26 @@ function updateDestinationMarker() {
     }
 }
 
+// 添加指南针刻度
+function createCompassTicks() {
+  const numTicks = 9; // 总刻度数，可以调整
+  for (let i = 0; i < numTicks; i++) {
+    const tick = document.createElement('div');
+    tick.classList.add('compass-tick');
+    const angle = (i * 360) / numTicks;
+    // tick.style.transform = `rotate(${angle}deg)`;
+
+    // 特殊处理北方向的刻度
+    if (i === 0) {
+      tick.style.height = '8px'; // 北刻度更长
+    }
+
+    compassTicks.appendChild(tick);
+  }
+}
+
 // 初始化
+createCompassTicks();
 requestDeviceOrientation();
 getGeolocation();
 setInterval(drawRadar, 500);
