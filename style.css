@@ -1,43 +1,217 @@
-/* ... 其他样式 ... */
+body {
+    font-family: 'Arial', sans-serif; /* 更现代的字体 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #222; /* 深色背景 */
+    color: #eee; /* 浅色文字 */
+}
+
+.container {
+    background-color: #333; /* 深色容器背景 */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 2.5em;
+    margin-bottom: 5px;
+    color: #00aaff; /* 主题色 */
+    text-shadow: 0 0 5px #00aaff;
+}
+
+.header p {
+    font-size: 1.1em;
+}
+
+.info {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    background-color: #444;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.info-item {
+    text-align: left;
+}
+
+.info-item label {
+    display: block;
+    margin-bottom: 2px;
+}
+
+.destination {
+    margin-bottom: 20px;
+}
+
+.destination h2 {
+    color: #00aaff;
+    margin-bottom: 10px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.input-group label {
+    width: 40px;
+    margin-right: 10px;
+}
+
+.input-group input {
+    flex-grow: 1;
+    padding: 5px;
+    border: 1px solid #666;
+    border-radius: 5px;
+    background-color: #222;
+    color: #eee;
+}
+
+#set-destination {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #00aaff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#set-destination:hover {
+    background-color: #0077cc;
+}
+
+.radar-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 0 auto;
+}
+
+#radar {
+    background-color: #000;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 170, 255, 0.8); /* 雷达边框辉光 */
+}
+
+.center-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background-color: #00aaff;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #00aaff; /* 中心点辉光 */
+}
 
 .compass {
     position: absolute;
     top: 0;
     left: 50%;
     width: 200px;
-    height: 20px;
+    height: 25px;
     margin-left: -100px;
-    /* background-color: rgba(255, 255, 255, 0.5); */
-    overflow: hidden; /* 隐藏超出范围的目的地标记 */
+    overflow: hidden;
 }
 
 .compass-line {
     position: absolute;
-    top: 10px;
+    top: 12px;
     left: 0;
     width: 200px;
-    height: 2px;
-    background-color: white;
-    transform-origin: 100px center;
+    height: 1px;
+    background-color: #00aaff;
+    transform-origin: center;
 }
 
 .compass-text {
     position: absolute;
-    top: 0px;
-    left: 95px;
-    color: white;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #00aaff;
     font-size: 14px;
+    text-shadow: 0 0 3px #00aaff;
 }
 
 .dest-marker {
     position: absolute;
-    top: 8px;
+    top: 10px;
     left: 50%;
     width: 8px;
     height: 8px;
     background-color: red;
     border: 1px solid white;
     border-radius: 50%;
-    margin-left: -4px; /* 微调标记位置 */
-    display: none; /* 默认隐藏 */
+    transform: translateX(-50%);
+    display: none;
+}
+
+.compass-ticks {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    width: 200px;
+    height: 1px;
+    transform-origin: center;
+}
+
+.compass-tick {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 5px;
+    background-color: #00aaff;
+}
+
+/* 添加更多刻度 */
+.compass-ticks .compass-tick:nth-child(1) { left: 50%; transform: translateX(-50%); height: 8px; } /* 北 */
+.compass-ticks .compass-tick:nth-child(2) { left: 25%; transform: translateX(-50%); } /* 西 */
+.compass-ticks .compass-tick:nth-child(3) { left: 75%; transform: translateX(-50%); } /* 东 */
+.compass-ticks .compass-tick:nth-child(4) { left: 5%; transform: translateX(-50%) rotate(22.5deg); }
+.compass-ticks .compass-tick:nth-child(5) { left: 95%; transform: translateX(-50%) rotate(-22.5deg); }
+.compass-ticks .compass-tick:nth-child(6) { left: 15%; transform: translateX(-50%) rotate(45deg); }
+.compass-ticks .compass-tick:nth-child(7) { left: 85%; transform: translateX(-50%) rotate(-45deg); }
+.compass-ticks .compass-tick:nth-child(8) { left: 35%; transform: translateX(-50%) rotate(-45deg); }
+.compass-ticks .compass-tick:nth-child(9) { left: 65%; transform: translateX(-50%) rotate(45deg); }
+
+/* 雷达扫描动画 */
+.radar-scan {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, rgba(0,170,255,0.2) 0%,rgba(0,170,255,0) 70%);
+    border-radius: 50%;
+    animation: scan 2s linear infinite;
+    transform-origin: center;
+}
+@keyframes scan {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+    .info {
+        flex-direction: column;
+    }
+    .info-item {
+        margin-bottom: 10px;
+    }
 }
